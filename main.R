@@ -976,12 +976,12 @@ cost_order <- per_trial %>%
     semi_join(sub_info) %>%
     distinct(id, cost) %>%
     group_by(id) %>%
-    # mutate(cost_order = paste0(row_number(cost), collapse = ""))
-    mutate(cost_order = as.factor(seq_along(cost)))
+    mutate(cost_order = paste0(row_number(cost), collapse = ""))
+    ungroup()
 draw_order <-
   num_bead_dat_scaled_filtered %>%
   right_join(cost_order) %>%
-  mixed(draw_times ~ cost * cost_order + (cost + cost_order | id), data = ., control = lmerCtrl)
+  mixed(draw_times ~ cost * cost_order + (cost | id), data = ., control = lmerCtrl)
 tidy(draw_order$anova_table)
 
 
@@ -989,7 +989,7 @@ tidy(draw_order$anova_table)
 eff_order <-
   eff_data_scaled_filtered %>%
   right_join(cost_order) %>%
-  mixed(efficiency ~ cost * cost_order + (cost + cost_order | id), data = ., control = lmerCtrl)
+  mixed(efficiency ~ cost * cost_order + (cost | id), data = ., control = lmerCtrl)
 tidy(eff_order$anova_table)
 
 
@@ -997,14 +997,14 @@ tidy(eff_order$anova_table)
 sd_order <-
   draw_var_dat_scaled_filtered %>%
   right_join(cost_order) %>%
-  mixed(sd ~ cost * cost_order + (cost + cost_order | id), data = ., control = lmerCtrl)
+  mixed(sd ~ cost * cost_order + (cost | id), data = ., control = lmerCtrl)
 tidy(sd_order$anova_table)
 
 ## ----Order effect regarding DT-------------------------------------------
 rt_order <-
   avg_rt_w0_outlier %>%
   right_join(cost_order) %>%
-  mixed(lg_rt ~ cost * cost_order + (cost + cost_order | id), data = ., control = lmerCtrl)
+  mixed(lg_rt ~ cost * cost_order + (cost | id), data = ., control = lmerCtrl)
 tidy(rt_order$anova_table)
 emmeans(rt_order, ~ cost_order) %>% contrast(method = "consec")
 
