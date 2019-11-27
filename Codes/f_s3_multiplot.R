@@ -3,7 +3,7 @@ id_ordered_by_aq <-
   mutate(id = fct_reorder(factor(id, ordered = T), aq_total_4)) %>%
   pull(id) %>%
   levels()
-f_s2_plot <- function(idx) {
+f_s3_plot <- function(idx) {
   ggplot(data = filter(rt_sim, id == idx, model == "ts_decay")) +
     stat_density(aes(x = lg_rt, color = "1"),
                  geom = "line",
@@ -59,17 +59,17 @@ f_s2_plot <- function(idx) {
     ) +
     NULL
 }
-f_s2_ls <- lapply(id_ordered_by_aq, f_s2_plot)
+f_s3_ls <- lapply(id_ordered_by_aq, f_s3_plot)
 walk(1:5, function(.x) {
   save_plot(
-    paste0("f_s2_", .x, ".pdf"),
-    plot_grid(plotlist = f_s2_ls[1:24 + (.x - 1) * 24], ncol = 4),
+    paste0("f_s3_", .x, ".pdf"),
+    plot_grid(plotlist = f_s3_ls[1:24 + (.x - 1) * 24], ncol = 4),
     device = cairo_pdf,
     base_width = 210,
     base_height = 297,
     units = "mm"
   )
 })
-f_s2_legend <- plot_grid(get_legend(f_s2_ls[[1]] + theme(legend.position = "bottom")))
-save_plot("f_s2_legend.pdf", f_s2_legend, device = cairo_pdf,
+f_s3_legend <- plot_grid(get_legend(f_s3_ls[[1]] + theme(legend.position = "bottom")))
+save_plot("f_s3_legend.pdf", f_s3_legend, device = cairo_pdf,
           base_width = 3, base_height = 0.5)

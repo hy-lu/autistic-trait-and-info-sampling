@@ -3,7 +3,7 @@ id_ordered_by_aq <-
   mutate(id = fct_reorder(factor(id, ordered = T), aq_total_4)) %>%
   pull(id) %>%
   levels()
-f_s1_plot <- function(idx) {
+f_s6_plot <- function(idx) {
   right_join(per_trial, sub_info) %>%
     filter(id == idx) %>%
     ggplot(aes(x = draw_times)) +
@@ -58,18 +58,18 @@ f_s1_plot <- function(idx) {
           plot.background = element_rect(color = "grey90", size = 0.1)) +
     NULL
 }
-f_s1_ls <- lapply(id_ordered_by_aq, f_s1_plot)
-f_s1_plotInGrid <- map(1:5, ~plot_grid(plotlist = f_s1_ls[1:24 + (.x - 1) * 24], ncol = 4))
+f_s6_ls <- lapply(id_ordered_by_aq, f_s6_plot)
+f_s6_plotInGrid <- map(1:5, ~plot_grid(plotlist = f_s6_ls[1:24 + (.x - 1) * 24], ncol = 4))
 walk(1:5, function(.x) {
   save_plot(
-    paste0("f_s1_", .x, ".pdf"),
-    plot_grid(plotlist = f_s1_ls[1:24 + (.x - 1) * 24], ncol = 4),
+    paste0("f_s6_", .x, ".pdf"),
+    plot_grid(plotlist = f_s6_ls[1:24 + (.x - 1) * 24], ncol = 4),
     device = cairo_pdf,
     base_width = 210,
     base_height = 297,
     units = "mm"
   )
 })
-f_s1_legend <- plot_grid(get_legend(f_s1_ls[[1]] + theme(legend.position = "bottom")))
-save_plot("f_s1_legend.pdf", f_s1_legend, device = cairo_pdf,
+f_s6_legend <- plot_grid(get_legend(f_s6_ls[[1]] + theme(legend.position = "bottom")))
+save_plot("f_s6_legend.pdf", f_s6_legend, device = cairo_pdf,
           base_width = 3, base_height = 0.5)

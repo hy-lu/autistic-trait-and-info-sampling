@@ -1,4 +1,4 @@
-## Figure number may not be in accordance with the number in the manuscript
+library(tidyverse)
 library(showtext)
 library(colorspace)
 library(cowplot)
@@ -70,7 +70,6 @@ f1_b <- ggplot(eg_reward_prob_df, aes(x = draw, y = vals)) +
     stroke = 0.3,
     size = 1.3
   ) +
-  # stat_ellipse(data = eg_perPart_df, aes(color = aq_group)) +
   scale_color_continuous_sequential(name = "AQ score", palette = "Purples 3") +
   scale_linetype_manual(
     name = NULL,
@@ -100,15 +99,9 @@ f1_b_legend <-
   get_legend(f1_b + theme(legend.position = "right", legend.direction = "vertical"))
 f1_a_raw <-
   magick::image_read("fig1_a.tif")
-f1_a_info <-
-  magick::image_info(f1_a_raw) %>% mutate(density_w = as.numeric(str_split(
-    density, pattern = "x", simplify = T
-  ))[1],
-  density_h = as.numeric(str_split(
-    density, pattern = "x", simplify = T
-  ))[2])
+f1_a_info <- tibble(height = 1808, width = 556, density_h = 150, density_w = 150)
 f1_a <-
-  ggdraw() + draw_image(f1_a_raw, scale = 0.9)
+  ggdraw() + draw_image(f1_a_raw, scale = 1)
 f1_b <-
   plot_grid(
     f1_b_main,
@@ -736,17 +729,17 @@ f4_b <-
   scale_color_continuous_sequential(palette = "Viridis",
                                    guide = guide_colorbar(title.position = "top",
                                                           title.theme = element_text(family = "Arial",
-                                                                                     size = 9),
+                                                                                     size = 12.6),
                                                           title.hjust = 1,
                                                           direction = "horizontal",
-                                                          barwidth = unit(80, "pt"),
-                                                          barheight = unit(8, "pt"))) +
+                                                          barwidth = unit(80*1.6, "pt"),
+                                                          barheight = unit(8*1.6, "pt"))) +
   scale_y_continuous(expand = expand_scale(mult = c(0, .05))) +
   labs(x = "", y = "Summed \u0394AICc", color = "Estimated model frequency") +
   coord_flip() +
-  theme_neat(base_size = font_size, base_family = "Arial") +
-  theme(axis.text.y = element_text(size = 8), axis.title.y = element_blank(),
-        legend.position = c(0.8, 0.15))
+  theme_neat(base_size = font_size*1.28, base_family = "Arial") +
+  theme(axis.text.y = element_text(size = 8*1.6), axis.title.y = element_blank(),
+        legend.position = c(0.7, 0.15))
 f4_c <- ggplot(semi_join(per_trial, sub_info), aes(x = draw_times)) +
   geom_histogram(aes(y = ..density..,
     color = "1"
@@ -846,16 +839,16 @@ f4_d <-
   theme(axis.line.y = element_blank(), legend.position = "none") +
   NULL
 ### Assemble Figure 4 ----
-f4_a_pdf <- magick::image_read_pdf("f4_a.pdf", density = 300)
+f4_a_pdf <- magick::image_read_pdf("f4_a.pdf", density = 600)
 f4_legend <- get_legend(f4_d + theme(legend.position = "bottom"))
 f4_main_noA <- plot_grid(NULL, f4_b, f4_c, f4_d, labels = "auto",
                          label_fontfamily = "Arial",
-                         rel_heights = c(1.1, 1), nrow = 2, label_size = 12)
+                         rel_heights = c(1.1, 1), nrow = 2, label_size = 12*1.6)
 f4_noA <- plot_grid(f4_main_noA, f4_legend, nrow = 2, rel_heights = c(1, 0.05))
 f4 <-
   ggdraw(f4_noA) +
-  draw_image(f4_a_pdf, 0, 0.50, 0.5, 0.5)
-save_plot("f4.pdf", f4, base_height = 8, base_width = 12, device = cairo_pdf)
+  draw_image(f4_a_pdf, 0, 0.50, 0.5, 0.5, scale = 1.05, clip = "off")
+save_plot("f4.pdf", f4, base_height = 14, base_width = 12, device = cairo_pdf)
 
 
 # Figure 5 ----
@@ -913,7 +906,7 @@ f5_1_main <- ptr_rt %>%
                 )
               ),
               margins = T) +
-  theme_neat(font_size, base_family = "Arial") +
+  theme_neat(font_size*1.2, base_family = "Arial") +
   theme(panel.spacing = unit(1, "lines"),
         legend.position = "none")
 f5_legend <-
@@ -948,7 +941,7 @@ f5_2_main_sep <-
     aes(x = x, y = y, label = text),
     data = f5_2_cortxt_sep,
     parse = T,
-    size = 3*1.5,
+    size = 3*1.6,
     color = "#555459",
     hjust = 0
   ) +
@@ -962,7 +955,7 @@ f5_2_main_sep <-
   facet_grid( ~ cost, scales = "free_x", labeller = as_labeller(c(
     `0` = "Cost: 0", `0.1` = "Cost: 0.1", `0.4` = "Cost: 0.4"
   ))) +
-  theme_neat(font_size, base_family = "Arial") +
+  theme_neat(font_size*1.6, base_family = "Arial") +
   theme(panel.spacing = unit(1, "lines"),
         legend.position = "none",
         axis.title.x = element_blank())
@@ -988,7 +981,7 @@ f5_2_main_all <-
     aes(x = x, y = y, label = text),
     data = f5_2_cortxt_all,
     parse = T,
-    size = 3*1.5,
+    size = 3*1.6,
     color = "#555459",
     hjust = 0
   ) +
@@ -1000,7 +993,7 @@ f5_2_main_all <-
   scale_fill_manual(values = c("#A4D289", "#6ABB45", "#0E8040")) +
   scale_y_continuous(breaks = log(c(100, 200, 400, 800, 1600)), labels = c(100, 200, 400, 800, 1600)) +
   facet_grid( ~ 1, scales = "free_x", labeller = as_labeller(c(`1` = "All"))) +
-  theme_neat(font_size, base_family = "Arial") +
+  theme_neat(font_size*1.6, base_family = "Arial") +
   theme(
     panel.spacing = unit(1, "lines"),
     legend.position = "none",
@@ -1032,15 +1025,16 @@ save_plot(
     f5_legend,
     nrow = 2,
     rel_heights = c(1, 0.1)
-  )) + draw_label("Second-thought probability", y = 0.1, size = 10, vjust = 0, fontface = "bold", fontfamily = "Arial"),
+  )) + draw_label("Second-thought probability", y = 0.1, size = 16, vjust = 0, fontface = "bold", fontfamily = "Arial"),
   base_width = 12,
   base_height = 4,
   device = cairo_pdf
 )
 
 # Figure 6 ----
+source(here("Codes", "aiccDif_AQ_clust_perm.R"))
 source(here("Codes", "corr.test2.R"))
-f6 <-
+f6_b <-
   famwise_aicc_diff %>%
   select(id, ts_vs_ts2) %>%
   left_join(eff_wide) %>% {
@@ -1070,45 +1064,117 @@ f6 <-
                                 "+p < .1" = "#B12A90FF",
                                 "*p < .05" = "#FCA636FF"),
                      guide = guide_legend(override.aes = list(size = 0.4))) +
-  labs(x = "", y = expression(paste("Corr", group("(",list(plain(AICc)[Cost %->% Evidence] - plain(AICc)[Evidence %->% Cost], plain(Efficiency)), ")"))), color = "") +
+  labs(x = "", y = "Corr(Cost-evidence strategy index, AQ)", color = "") +
   theme_neat(font_size, base_family = "Arial") +
   theme(axis.title.y = element_blank(),
         legend.position = "right",
         legend.direction = "vertical",
         plot.margin = margin(3, 2, 3, 2, unit = "mm"))
-# Figure 7 ----
-source(here("Codes", "aiccDif_AQ_clust_perm.R"))
-# Extra 1 ----
-f_e1_cortxt <-
-    famwise_aicc_diff %>%
-    select(id, ts_vs_ts2) %>%
-    left_join(sub_info) %>% cor_txt(ts_vs_ts2, aq_total_4, method = "spearman") %>%
-    mutate(x = -3000, y = 50)
-  f_e1 <-
-    famwise_aicc_diff %>%
-    select(id, ts_vs_ts2) %>%
-    left_join(sub_info) %>%
-    ggplot(aes(x = ts_vs_ts2, y = aq_total_4)) +
-    geom_point() +
-    geom_smooth(method = "lm") +
-    geom_text(
-      aes(x = x, y = y, label = text),
-      data = f_e1_cortxt,
-      parse = T,
-      size = 3,
-      color = "#555459",
-      hjust = 0.5,
-      family = "Arial"
-    ) +
-    labs(x = expression(AICc[Cost %->% Evidence] - AICc[Evidence %->% Cost]),
-         y = "AQ",
-         parse = T) +
-    theme_neat(font_size, base_family = "Arial")
-f_67e1 <-
+f6_a_cortxt <-
+  famwise_aicc_diff %>%
+  select(id, ts_vs_ts2) %>%
+  left_join(sub_info) %>% cor_txt(ts_vs_ts2, aq_total_4, method = "spearman") %>%
+  mutate(x = -3000, y = 50)
+f6_a <-
+  famwise_aicc_diff %>%
+  select(id, ts_vs_ts2) %>%
+  left_join(sub_info) %>%
+  ggplot(aes(x = ts_vs_ts2, y = aq_total_4)) +
+  geom_vline(xintercept = 0,
+             color = "gray50",
+             size = 0.05) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_text(
+    aes(x = x, y = y, label = text),
+    data = f6_a_cortxt,
+    parse = T,
+    size = 3,
+    color = "#555459",
+    hjust = 0.5,
+    family = "Arial"
+  ) +
+  annotate(
+    "text",
+    label = "Cost-first",
+    x = -100,
+    y = 45,
+    hjust = 1,
+    family = "Arial",
+    size = 3
+  ) +
+  annotate(
+    "text",
+    label = "Evidence-first",
+    x = 100,
+    y = 45,
+    hjust = 0,
+    family = "Arial",
+    size = 3
+  ) +
+  annotate(
+    "segment",
+    x = -100,
+    xend = -500,
+    y = 42.5,
+    yend = 42.5,
+    arrow = arrow(length = unit(1, "mm"))
+  ) +
+  annotate(
+    "segment",
+    x = 100,
+    xend = 500,
+    y = 42.5,
+    yend = 42.5,
+    arrow = arrow(length = unit(1, "mm"))
+  )  +
+  coord_cartesian(clip = "off") +
+  labs(x = "Cost-evidence strategy index",
+       y = "AQ") +
+  theme_neat(font_size, base_family = "Arial") +
+  theme( plot.margin = margin(
+    t = 3,
+    r = 8,
+    b = 3,
+    l = 4,
+    unit = "mm"
+  ))
+f6_c <- ggplot(aqAICcDif_cor, aes(x = as.numeric(nop) + 14, r)) +
+  geom_point(size = 0.5) +
+  geom_vline(xintercept = 91.5, size = 0.1, color = "grey50") +
+  geom_hline(yintercept = last(aqAICcDif_cor$r), size = 0.1, color = "grey50", linetype = "dotted") +
+  geom_segment(data = obs_sig_interval,
+               mapping = aes(x = sample_start, xend = sample_end, y = -0.52, yend = -0.52, color = "1", size = "sig")) +
+  geom_segment(data = obs2_sig_interval,
+               mapping = aes(x = sample_start, xend = sample_end, y = -0.5, yend = -0.5, color = "2", size = "marg_sig")) +
+  annotate("segment", x = 90, xend = 83, y = -0.13, yend = -0.13, arrow = arrow(length = unit(2, "mm"))) +
+  annotate("segment", x = 93, xend = 100, y = -0.13, yend = -0.13, arrow = arrow(length = unit(2, "mm"))) +
+  # annotate("segment", x = 102, xend = 104.5, y = last(aqAICcDif_cor$r) - 0.06, yend = last(aqAICcDif_cor$r) - 0.005,
+  #          arrow = arrow(length = unit(1.5, "mm"))) +
+  annotate("text", label = "Cost-First", x = 90, y = -0.1, hjust = 1,
+           family = "Arial") +
+  annotate("text", label = "Evidence-First", x = 93, y = -0.1, hjust = 0,
+           family = "Arial") +
+  annotate("text", label = "Overall\ncorrelation", x = 110, y = last(aqAICcDif_cor$r), hjust = 0.5, vjust = 0.5,
+           family = "Arial", color = "grey20", size = 2.91, lineheight = 1) +
+  scale_size_manual(values = c("sig" = 1.2, "marg_sig" = 0.6),
+                    labels = c("marg_sig" = "p < .10", "sig" = "p < .05"),
+                    guide = guide_legend(title = NULL)) +
+  scale_color_discrete_qualitative(labels = c("1" = "Compared with 0", "2" = "Compared with overall correlation"),
+                                   guide = guide_legend(title = NULL,
+                                                        keywidth = unit(1, "pt"),
+                                                        override.aes = list(size = 4)), palette = "Dynamic") +
+  coord_cartesian(xlim = c(1, 90) + 14, clip = "off") +
+  labs(x = "Number of participants included",
+       y = "Corr(Cost-evidence strategy index, AQ)") +
+  theme_neat(font_size, base_family = "Arial") +
+  theme(plot.margin = margin(3, 14, 3, 4, "mm")) +
+  NULL
+f6 <-
   plot_grid(
     plot_grid(
-      f_e1,
-      f6,
+      f6_a,
+      f6_b,
       align = "v",
       axis = "tb",
       nrow = 1,
@@ -1116,7 +1182,7 @@ f_67e1 <-
       label_size = 12,
       label_fontfamily = "Arial"
     ),
-    f7_2,
+    f6_c,
     rel_heights = c(1, 1.2),
     align = "h",
     axis = "lr",
@@ -1125,4 +1191,10 @@ f_67e1 <-
     label_size = 12,
     label_fontfamily = "Arial"
   )
-save_plot("f_67e1.pdf", f_67e1, device = cairo_pdf, base_height = 8.75, base_width = 7.5)
+save_plot(
+  "f6.pdf",
+  f6,
+  device = cairo_pdf,
+  base_height = 8.75,
+  base_width = 7.5
+)
