@@ -353,72 +353,12 @@ emtrends(avg_rt_aq_all, ~ cost, var = "aq_total") %>%
   tidy()
 
 ## Modeling analyses ----
-## load modeling results ----
 nobs <- read_csv(here("Data", "nobm_w_info.csv")) %>%
   filter(draw != 1) %>%
   count(id) %>%
   mutate(id = as.character(id))
 # ncol(.) is the sum of the number of parameters and id, ll, model, n
 # Choice model fitted in MATLAB, see .m codes in choice_model folder
-mod_file_path <- here("Data", "choice_model")
-mod_fit_ls <-
-  mod_file_path %>%
-  purrr::map(~ list.files(.x, pattern = "(os|ts).*\\.csv", full.names = T)) %>%
-  unlist() %>%
-  purrr::map(read_csv, col_types = cols(
-    .default = "d",
-    id = "c",
-    model = "c"
-  )) %>%
-  purrr::map(~ {
-    left_join(.x, nobs, by = "id") %>%
-      mutate(
-        k = ncol(.) - 4,
-        AICc = -2 * ll + 2 * k + 2 * k * (k + 1) / (n - k - 1),
-        BIC = -2 * ll + log(n) * k
-      )
-  }) %>%
-  bind_rows() %>%
-  dplyr::select(id, model, n, k, ll, AICc, BIC)
-
-mod_fit <-
-  mod_fit_ls %>%
-  left_join(sub_info, .)
-
-if (FALSE) {
-  # export data to perform group-level BMS in MATLAB
-  mod_fit %>%
-    dplyr::select(id, model, AICc) %>%
-    spread(model, AICc) %>%
-    arrange(as.numeric(id)) %>%
-    write_csv(here("Data", "model_aicc.csv"))
-  mod_fit %>%
-    dplyr::select(id, model, BIC) %>%
-    spread(model, BIC) %>%
-    arrange(as.numeric(id)) %>%
-    write_csv(here("Data", "model_bic.csv"))
-}
-
-pexc_prob <-
-  list("model_pxp_aicc.csv", "model_pxp_bic.csv") %>%
-  map_dfr(~ read_csv(here("Data", .), col_types = cols(.default = "d")), .id = "info_crit") %>%
-  mutate(info_crit = case_when(info_crit == "1" ~ "AICc", info_crit == "2" ~ "BIC")) %>%
-  gather("model", "pxp", -info_crit)
-
-mod_evi <-
-  mod_fit %>%
-  gather(info_crit, ic_value, AICc, BIC) %>%
-  group_by(id, info_crit) %>%
-  mutate(del_info_crit = ic_value - min(ic_value)) %>%
-  ungroup() %>%
-  right_join(pexc_prob) %>%
-  mutate(model = map_chr(model, replace_model_name)) %>%
-  group_by(info_crit, model) %>%
-  summarise(del_info_crit = sum(del_info_crit), pxp = mean(pxp)) %>%
-  ungroup() %>%
-  arrange(info_crit, del_info_crit) %>%
-  mutate(order = row_number())
-
 
 ## ----Model parameter data preparation---------------------
 # Choice model fitted in MATLAB, see .m codes in rt_model folder
