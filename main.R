@@ -354,7 +354,7 @@ emtrends(avg_rt_aq_all, ~ cost, var = "aq_total") %>%
 
 ## Modeling analyses ----
 nobs <- read_csv(here("Data", "nobm_w_info.csv")) %>%
-  filter(draw != 1) %>%
+  filter(draw != 20) %>%
   count(id) %>%
   mutate(id = as.character(id))
 # ncol(.) is the sum of the number of parameters and id, ll, model, n
@@ -362,6 +362,7 @@ nobs <- read_csv(here("Data", "nobm_w_info.csv")) %>%
 
 ## ----Model parameter data preparation---------------------
 # Choice model fitted in MATLAB, see .m codes in rt_model folder
+#FIXME: mod_file_path?
 all_mod_par_ls <- mod_file_path %>%
   purrr::map(~ list.files(.x, pattern = "(os|ts).*\\.csv", full.names = T)) %>%
   unlist() %>%
@@ -569,6 +570,7 @@ rt_mod_gof <- map2_df(rt_mod_data, rt_params[names(rt_mod_data)], left_join) %>%
   ungroup()
 
 ## ----Export Choice + RT model evidence--------------------
+#FIXME: mod_fit <- mod_par_ls
 choice_mod_fit <- mod_fit %>%
   left_join(nobs) %>%
   select(id, model, ll_choice = ll, n_choice = n, k_choice = k)
